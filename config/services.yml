@@ -1,0 +1,19 @@
+services:
+    chrisnig.tba.listener:       # name of the service you want to register
+        class: chrisnig\tba\Listener\MyEventListener
+        arguments:
+            - '@template'
+            - '@chrisnig.tba.access_time_manager'
+        tags:
+            - { name: event.listener }
+    chrisnig.tba.access_time_manager:
+        class: chrisnig\tba\Manager\AccessTimeManager
+        arguments:
+            - '@user'
+    chrisnig.tba.main_controller:
+        class: chrisnig\tba\Controller\MainController
+        arguments:
+            - '@config'
+            - '@controller.helper'
+            - '@template'
+            - '@user'
