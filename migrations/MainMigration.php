@@ -2,8 +2,41 @@
 
 namespace chrisnig\tba\migrations;
 
-class MainMigration extends \phpbb\db\migration\migration
+use phpbb\db\migration\migration;
+
+class MainMigration extends migration
 {
+	static $catInfo = [
+		"ucp",
+		0,
+		"TBA_UCP_CAT"
+	];
+
+	static $moduleInfo = [
+		"ucp",
+		"TBA_UCP_CAT",
+		[
+			"module_basename" => "tba_main",
+			"modes" => ["manageme", "manageothers"]
+		]
+	];
+
+	public function update_data()
+	{
+		return [
+			['module.add', self::$catInfo],
+			['module.add', self::$moduleInfo]
+		];
+	}
+
+	public function revert_data()
+	{
+		return [
+			['module.remove', self::$moduleInfo],
+			['module.remove', self::$catInfo]
+		];
+	}
+
 	public function update_schema() {
 		return [
 			'add_tables' => [
