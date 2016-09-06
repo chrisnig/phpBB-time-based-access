@@ -5,8 +5,6 @@ namespace chrisnig\tba\ucp;
 /**
  * @ignore
  */
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\HttpFoundation\Request;
 
 if (!defined('IN_PHPBB'))
 {
@@ -20,14 +18,9 @@ class tba_main_module
 	public $page_title;
 	private $container;
 
-	public function __construct(Container $container)
-	{
-		$this->container = $container;
-	}
-
 	public function main($id, $mode)
 	{
-		global $db, $user, $auth, $template, $container;
+		global $db, $user, $auth, $template;
 		global $config, $phpbb_root_path, $phpbb_admin_path, $phpEx;
 
 		$this->page_title = "TBA_UCP_HEADING";
