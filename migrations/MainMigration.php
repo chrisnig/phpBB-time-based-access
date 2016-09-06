@@ -16,8 +16,7 @@ class MainMigration extends migration
 		"ucp",
 		"TBA_UCP_CAT",
 		[
-			"module_basename" => "tba_main",
-			"modes" => ["manageme", "manageothers"]
+			"module_basename" => '\chrisnig\tba\ucp\tba_main_module'
 		]
 	];
 
