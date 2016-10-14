@@ -14,6 +14,7 @@
 namespace chrisnig\tba\Listener;
 
 use chrisnig\tba\Manager\AccessTimeManager;
+use chrisnig\tba\migrations\MainMigration;
 use phpbb\event\data;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use phpbb\template\template;
@@ -38,7 +39,7 @@ class MyEventListener implements EventSubscriberInterface
 	static public function getSubscribedEvents()
 	{
 		return array(
-			'core.user_setup' => 'load_language_on_setup',
+			'core.user_setup' => 'init_ext',
 			'core.display_forums_modify_sql' => 'triggerErrorIfAccessDenied',
 			'core.viewforum_get_topic_ids_data' => 'triggerErrorIfAccessDenied',
 			'core.viewtopic_get_post_data' => 'triggerErrorIfAccessDenied',
@@ -52,13 +53,12 @@ class MyEventListener implements EventSubscriberInterface
 		}
 	}
 
-	public function load_language_on_setup($event)
+	public function init_ext($event)
 	{
-		$lang_set_ext = $event['lang_set_ext'];
-		$lang_set_ext[] = [
-			'ext_name' => 'chrisnig/tba',
-			'lang_set' => 'lang',
-		];
-		$event['lang_set_ext'] = $lang_set_ext;
+		global $user;
+		$user->add_lang_ext('chrisnig/tba', 'lang');
+
+		global $table_prefix;
+		define('TBA_TABLE_USER_ACCESS', $table_prefix . MainMigration::$tableNames["user_access"]);
 	}
 }

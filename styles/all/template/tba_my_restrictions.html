@@ -1,13 +1,82 @@
 <!-- INCLUDE ucp_header.html -->
 
+<style type="text/css">
+	tr.time-restriction input {
+		width: 40px;
+	}
+</style>
+
 <h2>Manage my access restrictions</h2>
 
+<form action="{ACTION}" method="post">
 <div class="panel">
 	<div class="inner">
 		<p>{TBA_UCP_MYACC_EXPLAIN}</p>
 
-		<form action="{ACTION}" method="post"></form>
+		<fieldset class="fields2">
+				<dl>
+					<dt><label>{TBA_UCP_MYACC_RESTRICTMODE}:</label></dt>
+					<dd>
+						<input type="radio" name="restrictmode" value="none" id="restrictmode-none" {RESTRICTMODE_NONE_SELECTED}>
+						<label for="restrictmode-none">{TBA_UCP_MYACC_REST_NONE}</label><br>
+						<input type="radio" name="restrictmode" value="me" id="restrictmode-me" {RESTRICTMODE_ME_SELECTED}>
+						<label for="restrictmode-me">{TBA_UCP_MYACC_REST_ME}</label><br>
+						<input type="radio" name="restrictmode" value="guardian" id="restrictmode-guardian" {RESTRICTMODE_GUARDIAN_SELECTED}>
+						<label for="restrictmode-guardian">{TBA_UCP_MYACC_REST_GUARDIAN}</label>
+					</dd>
+				</dl>
+				<dl>
+					<dt><label for="guardian">{TBA_UCP_MYACC_GUARDIAN}:</label></dt>
+					<dd><input type="text" name="guardian" id="guardian"></dd>
+				</dl>
+				<dl>
+					<dt><label>{TBA_UCP_MYACC_ALLOWED_TIMES}:</label></dt>
+					<dd>
+						<table>
+							<tr>
+								<th></th>
+								<th><label>{Monday}</label></th>
+								<th><label>{Tuesday}</label></th>
+								<th><label>{Wednesday}</label></th>
+								<th><label>{Thursday}</label></th>
+								<th><label>{Friday}</label></th>
+								<th><label>{Saturday}</label></th>
+								<th><label>{Sunday}</label></th>
+							</tr>
+							<tr class="time-restriction from">
+								<th><label>{TBA_UCP_MYACC_FROM}</label></th>
+								<td><input type="text" name="mon_start" maxlength="5" value="{mon_start}"></td>
+								<td><input type="text" name="tue_start" maxlength="5" value="{tue_start}"></td>
+								<td><input type="text" name="wed_start" maxlength="5" value="{wed_start}"></td>
+								<td><input type="text" name="thu_start" maxlength="5" value="{thu_start}"></td>
+								<td><input type="text" name="fri_start" maxlength="5" value="{fri_start}"></td>
+								<td><input type="text" name="sat_start" maxlength="5" value="{sat_start}"></td>
+								<td><input type="text" name="sun_start" maxlength="5" value="{sun_start}"></td>
+							</tr>
+							<tr class="time-restriction until">
+								<th><label>{TBA_UCP_MYACC_UNTIL}</label></th>
+								<td><input type="text" name="mon_end" maxlength="5" value="{mon_end}"></td>
+								<td><input type="text" name="tue_end" maxlength="5" value="{tue_end}"></td>
+								<td><input type="text" name="wed_end" maxlength="5" value="{wed_end}"></td>
+								<td><input type="text" name="thu_end" maxlength="5" value="{thu_end}"></td>
+								<td><input type="text" name="fri_end" maxlength="5" value="{fri_end}"></td>
+								<td><input type="text" name="sat_end" maxlength="5" value="{sat_end}"></td>
+								<td><input type="text" name="sun_end" maxlength="5" value="{sun_end}"></td>
+							</tr>
+						</table>
+					</dd>
+				</dl>
+		</fieldset>
 	</div>
 </div>
 
+<fieldset class="submit-buttons">
+	{S_HIDDEN_FIELDS}<input type="reset" value="{L_RESET}" name="reset" class="button2" />&nbsp;
+	<input type="submit" name="submit" value="{L_SUBMIT}" class="button1" />
+	{S_FORM_TOKEN}
+</fieldset>
+
+</form>
+
+<!-- INCLUDEJS tba_my_restrictions.js -->
 <!-- INCLUDE ucp_footer.html -->
