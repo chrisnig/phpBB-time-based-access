@@ -21,7 +21,8 @@ class MainMigration extends migration
 	);
 
 	static $tableNames = array(
-		"user_access" => "tba_user_access"
+		"user_access" => "tba_user_access",
+		"guardians" => "tba_guardians"
 	);
 
 	public function update_data()
@@ -44,24 +45,31 @@ class MainMigration extends migration
 		return array(
 			'add_tables' => array(
 				$this->table_prefix . self::$tableNames["user_access"] => array(
-					"COLUMNS" => array(
-						"user_id" => array("UINT", 0, 'UNSIGNED'),
-						"mon_start" => array("VCHAR:5", ""), // it would be great if we could use TIME here, but phpBB schema
-						"mon_end" => array("VCHAR:5", ""),   // tool does not support this type
-						"tue_start" => array("VCHAR:5", ""),
-						"tue_end" => array("VCHAR:5", ""),
-						"wed_start" => array("VCHAR:5", ""),
-						"wed_end" => array("VCHAR:5", ""),
-						"thu_start" => array("VCHAR:5", ""),
-						"thu_end" => array("VCHAR:5", ""),
-						"fri_start" => array("VCHAR:5", ""),
-						"fri_end" => array("VCHAR:5", ""),
-						"sat_start" => array("VCHAR:5", ""),
-						"sat_end" => array("VCHAR:5", ""),
-						"sun_start" => array("VCHAR:5", ""),
-						"sun_end" => array("VCHAR:5", "")
+					'COLUMNS' => array(
+						'user_id' => array('UINT', 0, 'UNSIGNED'),
+						'mon_start' => array('VCHAR:5', ''), // it would be great if we could use TIME here, but phpBB schema
+						'mon_end' => array('VCHAR:5', ''),   // tool does not support this type
+						'tue_start' => array('VCHAR:5', ''),
+						'tue_end' => array('VCHAR:5', ''),
+						'wed_start' => array('VCHAR:5', ''),
+						'wed_end' => array('VCHAR:5', ''),
+						'thu_start' => array('VCHAR:5', ''),
+						'thu_end' => array('VCHAR:5', ''),
+						'fri_start' => array('VCHAR:5', ''),
+						'fri_end' => array('VCHAR:5', ''),
+						'sat_start' => array('VCHAR:5', ''),
+						'sat_end' => array('VCHAR:5', ''),
+						'sun_start' => array('VCHAR:5', ''),
+						'sun_end' => array('VCHAR:5', '')
 					),
-					"PRIMARY_KEY" => "user_id"
+					'PRIMARY_KEY' => 'user_id'
+				),
+				$this->table_prefix . self::$tableNames['guardians'] => array(
+					'COLUMNS' => array(
+						'guardian_id' => array('UINT', 0, 'UNSIGNED'),
+						'charge_id' => array('UINT', 0, 'UNSIGNED')
+					),
+					'PRIMARY_KEY' => 'guardian_id, charge_id'
 				)
 			)
 		);
@@ -70,7 +78,8 @@ class MainMigration extends migration
 	public function revert_schema() {
 		return array(
 			"drop_tables" => array(
-				$this->table_prefix . self::$tableNames["user_access"]
+				$this->table_prefix . self::$tableNames['user_access'],
+				$this->table_prefix . self::$tableNames['guardians']
 			)
 		);
 	}

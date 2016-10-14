@@ -2,6 +2,7 @@
 
 namespace chrisnig\tba\Manager;
 
+use phpbb\db\driver\driver_interface;
 use phpbb\user;
 
 class AccessTimeManager
@@ -12,9 +13,13 @@ class AccessTimeManager
 	/* @var bool|null */
 	protected $isGranted;
 
-	public function __construct(user $user)
+	/** @var \phpbb\db\driver\driver_interface $db */
+	protected $db;
+
+	public function __construct(user $user, driver_interface $db)
 	{
 		$this->user = $user;
+		$this->db = $db;
 		$this->isGranted = null;
 	}
 
@@ -33,11 +38,11 @@ class AccessTimeManager
 	}
 
 	public function getRestrictionMode($userId = null) {
+		// TODO refactor this so it also returns guardian mode when it is implemented
 		if (!$userId) {
 			$userId = $this->user->data['user_id'];
 		}
 
-		// TODO refactor this so it also returns guardian mode when it is implemented
 		if ($userId === ANONYMOUS) {
 			// we do not store data for anon users, they always have access
 			return "none";
@@ -61,6 +66,29 @@ class AccessTimeManager
 		} else {
 			return "me";
 		}
+	}
+
+	public function setAccessTimes($userId, $accessTimes) {
+		if (count($accessTimes) !== 14) {
+			throw new \Exception('Invalid number of entries in access time array!');
+		}
+
+		foreach ($accessTimes as $key => $time) {
+			$accessTimes[$key] = $this->fixTime($time);
+			if (!$this->validateTime($accessTimes[$key])) {
+				if (strpos($key, 'start')) {
+					$accessTimes[$key] = '00:00';
+				} else {
+					$accessTimes[$key] = '23:59';
+				}
+			}
+		}
+
+		$this->removeTimeRestrictions($userId);
+
+		$accessTimes['user_id'] = $userId;
+		$query = 'INSERT INTO ' . TBA_TABLE_USER_ACCESS . ' ' . $this->db->sql_build_array('INSERT', $accessTimes);
+		$this->db->sql_query($query);
 	}
 
 	public function getAccessTimes($userId = null)
@@ -111,6 +139,31 @@ class AccessTimeManager
 		);
 	}
 
+	public function removeAccessRestrictions($userId = null)
+	{
+		if (!$userId) {
+			$userId = $this->user->data['user_id'];
+		}
+
+		$this->removeGuardian($userId);
+		$this->removeTimeRestrictions($userId);
+	}
+
+	public function removeTimeRestrictions($userId) {
+		global $db;
+		$db->sql_query('DELETE FROM ' . TBA_TABLE_USER_ACCESS .
+			' WHERE user_id = ' . $userId . ';');
+	}
+
+	public function setGuardianByUsername($userId, $guardianUsername) {
+		// TODO
+		$this->removeTimeRestrictions($userId);
+	}
+
+	public function removeGuardian($userId) {
+		// TODO
+	}
+
 	private function checkAccessGranted($userId = null)
 	{
 		if (!$userId) {
@@ -147,5 +200,17 @@ class AccessTimeManager
 		$endTime = \DateTime::createFromFormat("H:i:s", $resultRow[1] . ":59");
 
 		return $now >= $startTime && $now <= $endTime;
+	}
+
+	private function fixTime($time) {
+		$time = str_replace('.', ':', $time);
+		if (strlen($time) < 5) {
+			$time = '0' . $time;
+		}
+		return $time;
+	}
+
+	private function validateTime($time) {
+		return preg_match('/([01][0-9]|2[0-3]):[0-5][0-9]/', $time) === 1;
 	}
 }

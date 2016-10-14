@@ -22,14 +22,13 @@ class tba_main_module
 
 	public function main($id, $mode)
 	{
-		global $db, $user, $auth, $template;
-		global $config, $phpbb_root_path, $phpbb_admin_path, $phpEx;
+		global $db, $user, $auth, $template, $request, $phpbb_container;
 
 		$this->page_title = "TBA_UCP_HEADING";
-		$submit = isset($_POST['submit']);
+		$submit = $request->variable('submit', false, false, \phpbb\request\request_interface::POST);
 
 		switch ($mode) {
-			case "manageme":
+			case 'manageme':
 				$accessTimes = array(
 					"mon_start" => "",
 					"mon_end" => "",
@@ -47,35 +46,68 @@ class tba_main_module
 					"sun_end" => ""
 				);
 
-				if ($submit) {
+				/** @var AccessTimeManager $accessManager */
+				$accessManager = $phpbb_container->get("chrisnig.tba.access_time_manager");
 
-				} else {
-					global $phpbb_container;
-					/** @var AccessTimeManager $accessManager */
-					$accessManager = $phpbb_container->get("chrisnig.tba.access_time_manager");
-					$restrictionMode = $accessManager->getRestrictionMode();
-					switch ($restrictionMode) {
+				if ($submit) {
+					$newRestrictionMode = $request->variable('restrictmode', '');
+					switch ($newRestrictionMode) {
 						case 'guardian':
-							$selectedNone = false;
-							$selectedMe = false;
-							$selectedGuardian = true;
+							$newGuardian = $request->variable('guardian', '');
+							$accessManager->setGuardianByUsername($user->data['user_id'], $newGuardian);
 							break;
 						case 'me':
-							$selectedNone = false;
-							$selectedMe = true;
-							$selectedGuardian = false;
+							$accessTimes = array(
+								'mon_start' => $request->variable('mon_start', ''),
+								'mon_end' => $request->variable('mon_end', ''),
+								'tue_start' => $request->variable('tue_start', ''),
+								'tue_end' => $request->variable('mtue_end', ''),
+								'wed_start' => $request->variable('wed_start', ''),
+								'wed_end' => $request->variable('wed_end', ''),
+								'thu_start' => $request->variable('thu_start', ''),
+								'thu_end' => $request->variable('thu_end', ''),
+								'fri_start' => $request->variable('fri_start', ''),
+								'fri_end' => $request->variable('fri_end', ''),
+								'sat_start' => $request->variable('sat_start', ''),
+								'sat_end' => $request->variable('sat_end', ''),
+								'sun_start' => $request->variable('sun_start', ''),
+								'sun_end' => $request->variable('sun_end', ''),
+							);
+							$accessManager->setAccessTimes($user->data['user_id'], $accessTimes);
 							break;
 						case 'none':
-							$selectedNone = true;
-							$selectedMe = false;
-							$selectedGuardian = false;
+							$accessManager->removeAccessRestrictions($user->data['user_id']);
 							break;
 						default:
-							throw new \Exception("Invalid restriction mode '".$restrictionMode."'!");
+							throw new \Exception("Invalid restriction mode supplied!");
 					}
+				}
 
-					if ($restrictionMode === 'guardian' || $restrictionMode === 'me') {
-						$accessTimes = $accessManager->getAccessTimes();
+				$restrictionMode = $accessManager->getRestrictionMode($user->data['user_id']);
+				switch ($restrictionMode) {
+					case 'guardian':
+						$selectedNone = false;
+						$selectedMe = false;
+						$selectedGuardian = true;
+						break;
+					case 'me':
+						$selectedNone = false;
+						$selectedMe = true;
+						$selectedGuardian = false;
+						break;
+					case 'none':
+						$selectedNone = true;
+						$selectedMe = false;
+						$selectedGuardian = false;
+						break;
+					default:
+						throw new \Exception("Invalid restriction mode '".$restrictionMode."'!");
+				}
+
+				if ($restrictionMode === 'guardian' || $restrictionMode === 'me') {
+					$actualAccessTimes = $accessManager->getAccessTimes();
+					if ($actualAccessTimes) {
+						$accessTimes = $actualAccessTimes;
 					}
 				}
 
@@ -104,7 +136,7 @@ class tba_main_module
 					'ACTION' => $this->u_action
 				));
 				break;
-			case "manageothers":
+			case 'manageothers':
 				$this->tpl_name = 'main_result';
 				break;
 		}

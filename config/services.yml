@@ -10,6 +10,7 @@ services:
         class: chrisnig\tba\Manager\AccessTimeManager
         arguments:
             - '@user'
+            - '@dbal.conn.driver'
     chrisnig.tba.main_controller:
         class: chrisnig\tba\Controller\MainController
         arguments:
